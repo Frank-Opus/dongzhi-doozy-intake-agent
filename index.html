@@ -368,6 +368,25 @@
 
       .upload-btn input { display: none; }
 
+      .voice-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid rgba(114, 132, 111, 0.45);
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 12px;
+        color: #55695e;
+        cursor: pointer;
+        background: rgba(114, 132, 111, 0.12);
+      }
+
+      .voice-btn.listening {
+        border-color: rgba(181, 138, 86, 0.65);
+        background: rgba(181, 138, 86, 0.16);
+        color: #7a5b35;
+      }
+
       .small-muted { color: var(--muted); font-size: 12px; }
 
       .img-preview {
@@ -619,10 +638,13 @@
             <div class="composer">
               <textarea id="input" placeholder="输入业主需求，或上传参考图。例：130平改善型住房，预算55万，偏现代克制但要有温暖木质感，收纳必须强..."></textarea>
               <div class="tools-row">
-                <label class="upload-btn">
-                  <input id="fileInput" type="file" accept="image/*" multiple />
-                  + 添加参考图
-                </label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <label class="upload-btn">
+                    <input id="fileInput" type="file" accept="image/*" multiple />
+                    + 添加参考图
+                  </label>
+                  <button id="voiceBtn" class="voice-btn" type="button">🎙️ 语音输入</button>
+                </div>
                 <span id="imgCount" class="small-muted">未添加参考图</span>
               </div>
               <div id="imgPreview" class="img-preview"></div>
@@ -678,6 +700,7 @@
         profile: {},
         imageSearch: null,
         pendingImages: [],
+        listening: false,
         messages: [
           {
             role: "assistant",
@@ -693,6 +716,7 @@
         input: document.getElementById("input"),
         sendBtn: document.getElementById("sendBtn"),
         fileInput: document.getElementById("fileInput"),
+        voiceBtn: document.getElementById("voiceBtn"),
         imgPreview: document.getElementById("imgPreview"),
         imgCount: document.getElementById("imgCount"),
         profile: document.getElementById("profile"),
@@ -700,6 +724,90 @@
         bar: document.getElementById("bar"),
         imageSearch: document.getElementById("imageSearch")
       };
+
+
+      let recognition = null;
+      let speechSupported = false;
+
+      function updateVoiceUI() {
+        if (!els.voiceBtn) return;
+        if (!speechSupported) {
+          els.voiceBtn.disabled = true;
+          els.voiceBtn.textContent = "🎙️ 当前浏览器不支持语音";
+          return;
+        }
+        if (state.listening) {
+          els.voiceBtn.classList.add("listening");
+          els.voiceBtn.textContent = "⏹️ 停止录音";
+        } else {
+          els.voiceBtn.classList.remove("listening");
+          els.voiceBtn.textContent = "🎙️ 语音输入";
+        }
+      }
+
+      function initSpeechRecognition() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) {
+          speechSupported = false;
+          updateVoiceUI();
+          return;
+        }
+
+        speechSupported = true;
+        recognition = new SR();
+        recognition.lang = "zh-CN";
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        let draft = "";
+
+        recognition.onresult = (event) => {
+          let finalText = "";
+          let interimText = "";
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const t = event.results[i][0]?.transcript || "";
+            if (event.results[i].isFinal) finalText += t;
+            else interimText += t;
+          }
+          if (finalText) draft += (draft ? "" : "") + finalText;
+          const base = draft.trim();
+          const inter = interimText.trim();
+          const merged = [base, inter].filter(Boolean).join(base && inter ? " " : "");
+          if (merged) els.input.value = merged;
+        };
+
+        recognition.onerror = () => {
+          state.listening = false;
+          updateVoiceUI();
+        };
+
+        recognition.onend = () => {
+          if (state.listening) {
+            try { recognition.start(); return; } catch {}
+          }
+          state.listening = false;
+          updateVoiceUI();
+        };
+
+        updateVoiceUI();
+      }
+
+      function toggleVoiceInput() {
+        if (!speechSupported || !recognition) return;
+        if (state.listening) {
+          state.listening = false;
+          try { recognition.stop(); } catch {}
+          updateVoiceUI();
+          return;
+        }
+        state.listening = true;
+        try {
+          recognition.start();
+        } catch {
+          state.listening = false;
+        }
+        updateVoiceUI();
+      }
 
       function esc(str = "") {
         return String(str)
@@ -991,6 +1099,8 @@
         await handleFiles(e.target.files);
       });
 
+      els.voiceBtn?.addEventListener("click", toggleVoiceInput);
+
       els.imgPreview.addEventListener("click", (e) => {
         const btn = e.target.closest("button[data-remove]");
         if (!btn) return;
@@ -1004,6 +1114,7 @@
       renderProfile();
       renderImagePreview();
       renderImageSearch();
+      initSpeechRecognition();
     </script>
   </body>
 </html>
