@@ -337,6 +337,14 @@ function sseSend(res, event, data) {
 }
 
 module.exports = async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -353,7 +361,8 @@ module.exports = async (req, res) => {
         res.writeHead(500, {
           "Content-Type": "text/event-stream; charset=utf-8",
           "Cache-Control": "no-cache, no-transform",
-          Connection: "keep-alive"
+          Connection: "keep-alive",
+          "Access-Control-Allow-Origin": "*"
         });
         sseSend(res, "error", { error: "未配置 KIMI_API_KEY（或 OPENAI_API_KEY）" });
         return res.end();
@@ -402,7 +411,8 @@ module.exports = async (req, res) => {
     res.writeHead(200, {
       "Content-Type": "text/event-stream; charset=utf-8",
       "Cache-Control": "no-cache, no-transform",
-      Connection: "keep-alive"
+      Connection: "keep-alive",
+      "Access-Control-Allow-Origin": "*"
     });
 
     let reply = "";
