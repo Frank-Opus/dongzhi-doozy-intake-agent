@@ -1,0 +1,9 @@
+{
+  "name": "decor-intake-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "装修公司需求采集 Agent（Vercel）",
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}

@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>东咫 Doozy｜AI 需求采集中枢</title>
+    <style>
+      :root {
+        --bg-0: #f6f2eb;
+        --bg-1: #eee6da;
+        --bg-2: #e3d7c7;
+        --text: #2b2723;
+        --muted: #7f756a;
+        --line: rgba(117, 97, 70, 0.22);
+        --primary: #5e7c71;
+        --brand-gold: #b58a56;
+        --brand-emerald: #4f7f72;
+        --panel: rgba(255, 252, 247, 0.80);
+        --panel-strong: rgba(255, 250, 244, 0.94);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        color: var(--text);
+        font-family: "Inter", "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background:
+          radial-gradient(1400px 700px at 8% -24%, #f3e6d3 0%, var(--bg-1) 48%, var(--bg-0) 100%);
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        width: 560px;
+        height: 560px;
+        border-radius: 50%;
+        filter: blur(130px);
+        z-index: 0;
+        pointer-events: none;
+      }
+      body::before {
+        background: rgba(191, 155, 104, 0.24);
+        top: -220px;
+        left: -120px;
+        animation: floatA 16s ease-in-out infinite;
+      }
+      body::after {
+        background: rgba(124, 152, 130, 0.2);
+        bottom: -260px;
+        right: -150px;
+        animation: floatB 18s ease-in-out infinite;
+      }
+
+      @keyframes floatA {
+        0%,100% { transform: translate(0,0); }
+        50% { transform: translate(40px, 30px); }
+      }
+      @keyframes floatB {
+        0%,100% { transform: translate(0,0); }
+        50% { transform: translate(-30px, -40px); }
+      }
+
+      .mesh {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background-image:
+          linear-gradient(rgba(145, 121, 90, 0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(145, 121, 90, 0.08) 1px, transparent 1px);
+        background-size: 36px 36px;
+        mask-image: radial-gradient(circle at center, black 36%, transparent 92%);
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 24px 20px 30px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo {
+        width: 44px;
+        height: 44px;
+        border-radius: 13px;
+        background: linear-gradient(135deg, #f0d19a, #bea06b);
+        color: #1a1b24;
+        font-weight: 800;
+        display: grid;
+        place-items: center;
+        letter-spacing: 0.08em;
+        box-shadow: 0 8px 30px rgba(216, 179, 119, 0.32);
+      }
+
+      .brand-title {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .brand-sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .tag {
+        font-size: 12px;
+        border: 1px solid rgba(216, 179, 119, 0.5);
+        color: #6f5637;
+        background: rgba(216, 179, 119, 0.1);
+        padding: 4px 10px;
+        border-radius: 999px;
+      }
+
+      .card {
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 20px 60px rgba(91, 70, 42, 0.12);
+      }
+
+      .hero {
+        margin-bottom: 16px;
+        padding: 18px;
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 16px;
+        background:
+          linear-gradient(135deg, rgba(253, 249, 243, 0.95), rgba(244, 236, 225, 0.95)),
+          radial-gradient(500px 240px at 80% -30%, rgba(216, 179, 119, 0.24), transparent 65%);
+      }
+
+      .hero-title {
+        margin: 0;
+        font-size: 30px;
+        line-height: 1.25;
+        letter-spacing: 0.01em;
+      }
+
+      .hero-title .accent {
+        background: linear-gradient(90deg, #ffe4b0, #d8b377);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .hero-desc {
+        margin-top: 10px;
+        color: #6f6254;
+        line-height: 1.9;
+        font-size: 14px;
+      }
+
+      .hero-pills {
+        margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .hero-pill {
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(114, 132, 111, 0.45);
+        color: #55695e;
+        background: rgba(114, 132, 111, 0.12);
+      }
+
+      .hero-stats {
+        display: grid;
+        gap: 10px;
+      }
+
+      .stat {
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(143, 121, 92, 0.28);
+        background: rgba(255, 251, 245, 0.88);
+      }
+      .stat .label {
+        font-size: 12px;
+        color: #8b7d6b;
+        margin-bottom: 3px;
+      }
+      .stat .value {
+        font-size: 19px;
+        font-weight: 700;
+      }
+      .stat .hint {
+        margin-top: 2px;
+        color: #8e7f6e;
+        font-size: 12px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+      }
+
+      .chat-shell {
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 76vh;
+      }
+
+      .chat-head {
+        padding: 18px 18px 15px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, rgba(181, 138, 86, 0.10), rgba(181, 138, 86, 0.02));
+      }
+
+      .chat-title {
+        margin: 0;
+        font-size: 19px;
+        font-weight: 750;
+        letter-spacing: 0.01em;
+      }
+
+      .chat-desc {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.75;
+      }
+
+      .chat-badges {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .chat-badge {
+        font-size: 11px;
+        border: 1px solid rgba(125, 155, 255, 0.45);
+        background: rgba(125, 155, 255, 0.08);
+        color: #55695e;
+        border-radius: 999px;
+        padding: 4px 9px;
+      }
+
+      .messages {
+        padding: 16px;
+        height: calc(100vh - 440px);
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .msg {
+        max-width: 90%;
+        padding: 12px 14px;
+        border-radius: 14px;
+        line-height: 1.72;
+        white-space: pre-wrap;
+        border: 1px solid transparent;
+      }
+
+      .msg.user {
+        align-self: flex-end;
+        background: linear-gradient(180deg, rgba(113, 139, 127, 0.92), rgba(86, 113, 101, 0.94));
+        border-color: rgba(82, 106, 92, 0.72);
+        color: #fffaf2;
+      }
+
+      .msg.assistant {
+        align-self: flex-start;
+        background: linear-gradient(180deg, rgba(250, 245, 236, 0.95), rgba(245, 236, 223, 0.96));
+        border-color: rgba(168, 146, 113, 0.38);
+        color: #2f2721;
+      }
+
+      .typing { opacity: 0.8; font-style: italic; color: #8f7f6b; }
+
+      .msg-images {
+        margin-top: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .msg-images img {
+        width: 88px;
+        height: 88px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid rgba(122, 145, 134, 0.65);
+      }
+
+      .composer-wrap {
+        border-top: 1px solid var(--line);
+        padding: 12px;
+        display: flex;
+        gap: 10px;
+        background: var(--panel-strong);
+      }
+
+      .composer {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 66px;
+        max-height: 180px;
+        resize: vertical;
+        border-radius: 11px;
+        border: 1px solid rgba(154, 131, 96, 0.55);
+        background: rgba(255, 250, 244, 0.95);
+        color: var(--text);
+        padding: 11px 12px;
+        font-size: 14px;
+      }
+
+      textarea::placeholder { color: #9b8d7a; }
+
+      .tools-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .upload-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid rgba(216, 179, 119, 0.5);
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 12px;
+        color: #6b5335;
+        cursor: pointer;
+        background: rgba(216, 179, 119, 0.12);
+      }
+
+      .upload-btn input { display: none; }
+
+      .small-muted { color: var(--muted); font-size: 12px; }
+
+      .img-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .thumb { position: relative; }
+
+      .thumb img {
+        width: 72px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid rgba(131, 156, 144, 0.7);
+      }
+
+      .thumb button {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        border: none;
+        background: #ff7d8f;
+        color: #2c0010;
+        font-size: 11px;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      #sendBtn {
+        border: none;
+        border-radius: 11px;
+        background: linear-gradient(135deg, #cfa76a, #b88b51);
+        color: #ffffff;
+        font-weight: 700;
+        padding: 0 18px;
+        cursor: pointer;
+        min-width: 84px;
+      }
+
+      #sendBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+      .panel {
+        padding: 14px;
+        overflow: auto;
+      }
+
+      .section-title {
+        margin: 0 0 8px;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.68;
+      }
+
+      .progress {
+        margin: 10px 0 12px;
+        background: rgba(243, 235, 223, 0.9);
+        border: 1px solid rgba(167, 145, 112, 0.55);
+        border-radius: 999px;
+        overflow: hidden;
+        height: 12px;
+      }
+
+      .bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--brand-emerald), #afeede);
+      }
+
+      .kv {
+        margin: 9px 0;
+        padding: 10px;
+        border-radius: 11px;
+        background: rgba(255, 251, 245, 0.9);
+        border: 1px solid rgba(163, 140, 108, 0.46);
+      }
+
+      .kv .k { color: #8e7f6f; font-size: 12px; margin-bottom: 5px; }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .chip {
+        font-size: 12px;
+        border: 1px solid rgba(142, 123, 95, 0.46);
+        color: #5f5244;
+        padding: 4px 8px;
+        border-radius: 999px;
+      }
+
+      .splitter {
+        height: 1px;
+        margin: 14px 0;
+        background: linear-gradient(90deg, transparent, rgba(173, 150, 118, 0.5), transparent);
+      }
+
+      .search-links {
+        display: grid;
+        gap: 8px;
+      }
+
+      .search-links a {
+        color: #4f6d62;
+        text-decoration: none;
+      }
+
+      .search-links a:hover { text-decoration: underline; }
+
+      .company-box {
+        margin-bottom: 14px;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(216, 179, 119, 0.45);
+        background: linear-gradient(135deg, rgba(216, 179, 119, 0.12), rgba(216, 179, 119, 0.04));
+      }
+
+      .company-name {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: #f6e2bf;
+      }
+
+      .company-note {
+        margin-top: 6px;
+        color: #decaa8;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .cases {
+        margin-top: 10px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .case-card {
+        border-radius: 10px;
+        padding: 10px;
+        border: 1px solid rgba(147, 126, 97, 0.35);
+        background: rgba(250, 245, 236, 0.88);
+      }
+      .case-card .title {
+        font-size: 12px;
+        color: #5f5244;
+        margin-bottom: 4px;
+        font-weight: 600;
+      }
+      .case-card .desc {
+        font-size: 12px;
+        color: #857868;
+        line-height: 1.7;
+      }
+
+      @media (max-width: 1100px) {
+        .hero { grid-template-columns: 1fr; }
+      }
+
+      @media (max-width: 1040px) {
+        .layout { grid-template-columns: 1fr; }
+        .messages { height: 52vh; }
+        .topbar { flex-direction: column; align-items: flex-start; }
+        .hero-title { font-size: 24px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mesh"></div>
+    <div class="page">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo">东咫</div>
+          <div>
+            <div class="brand-title">东咫设计工程（深圳）集团有限公司</div>
+            <div class="brand-sub">Doozy Interior Intelligence · Demand Intelligence Hub</div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">Doozy Premium UI</span>
+          <span class="tag">高端咨询体验</span>
+          <span class="tag">多模态需求采集</span>
+          <span class="tag">方案前置信息中枢</span>
+        </div>
+      </header>
+
+      <section class="card hero">
+        <div>
+          <h1 class="hero-title">把业主沟通，变成<span class="accent">可执行的高质量设计输入</span></h1>
+          <div class="hero-desc">
+            东咫 Doozy 智能体以品牌顾问式沟通，快速识别业主偏好、预算约束、生活方式与空间优先级，
+            将“聊天”转化为可直接进入设计流程的结构化任务单。
+          </div>
+          <div class="hero-pills">
+            <span class="hero-pill">流式实时回复</span>
+            <span class="hero-pill">参考图理解与检索</span>
+            <span class="hero-pill">需求完整度追踪</span>
+            <span class="hero-pill">高审美品牌话术</span>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="label">Consulting Efficiency</div>
+            <div class="value">↑ 2.6x</div>
+            <div class="hint">将前期反复沟通压缩为结构化采集流程</div>
+          </div>
+          <div class="stat">
+            <div class="label">Demand Completeness</div>
+            <div class="value">0~100%</div>
+            <div class="hint">自动评估关键字段覆盖率</div>
+          </div>
+          <div class="stat">
+            <div class="label">Doozy Signature</div>
+            <div class="value">Elegant + Human</div>
+            <div class="hint">高级表达，不生硬、不模板化</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="layout">
+        <section class="card chat-shell">
+          <div class="chat-head">
+            <h2 class="chat-title">东咫 · 业主需求采集 Agent</h2>
+            <div class="chat-desc">
+              智能体将以“审美感 + 专业感 + 温度感”的节奏和业主沟通，
+              自动沉淀为设计可执行字段，减少项目启动前的信息噪音。
+            </div>
+            <div class="chat-badges">
+              <span class="chat-badge">SSE 流式输出</span>
+              <span class="chat-badge">参考图理解</span>
+              <span class="chat-badge">以图搜灵感</span>
+              <span class="chat-badge">自动生成需求卡片</span>
+            </div>
+          </div>
+
+          <div id="messages" class="messages"></div>
+
+          <div class="composer-wrap">
+            <div class="composer">
+              <textarea id="input" placeholder="输入业主需求，或上传参考图。例：130平改善型住房，预算55万，偏现代克制但要有温暖木质感，收纳必须强..."></textarea>
+              <div class="tools-row">
+                <label class="upload-btn">
+                  <input id="fileInput" type="file" accept="image/*" multiple />
+                  + 添加参考图
+                </label>
+                <span id="imgCount" class="small-muted">未添加参考图</span>
+              </div>
+              <div id="imgPreview" class="img-preview"></div>
+            </div>
+            <button id="sendBtn">发送</button>
+          </div>
+        </section>
+
+        <aside class="card panel">
+          <div class="company-box">
+            <p class="company-name">东咫设计工程（深圳）集团有限公司</p>
+            <div class="company-note">
+              Doozy 视觉语言：深色高定、微光渐层、金色品牌识别。
+              智能体语气统一为“高级顾问表达”，兼顾专业与亲和。
+            </div>
+          </div>
+
+          <h3 class="section-title">品牌案例语气板</h3>
+          <div class="cases">
+            <div class="case-card">
+              <div class="title">侘寂静奢 · 低饱和克制感</div>
+              <div class="desc">关键词：留白、矿物质肌理、柔性光源、自然材料比例控制。</div>
+            </div>
+            <div class="case-card">
+              <div class="title">现代木质 · 温暖秩序</div>
+              <div class="desc">关键词：原木体块、无主灯层次、收纳一体化、界面整洁。</div>
+            </div>
+            <div class="case-card">
+              <div class="title">都会轻奢 · 材质对比</div>
+              <div class="desc">关键词：金属细节点缀、石材纹理、软装色彩平衡、酒店式氛围。</div>
+            </div>
+          </div>
+
+          <div class="splitter"></div>
+
+          <h3 class="section-title">业主需求卡片</h3>
+          <div class="muted">每轮对话后自动更新，可直接用于设计任务分发。</div>
+          <div class="progress"><div id="bar" class="bar" style="width:0%"></div></div>
+          <div id="score" class="muted">完成度：0%</div>
+          <div id="profile"></div>
+
+          <div class="splitter"></div>
+
+          <h3 class="section-title">根据参考图搜灵感</h3>
+          <div id="imageSearch" class="muted">上传参考图后会自动生成检索关键词与链接。</div>
+        </aside>
+      </div>
+    </div>
+
+    <script>
+      const state = {
+        loading: false,
+        profile: {},
+        imageSearch: null,
+        pendingImages: [],
+        messages: [
+          {
+            role: "assistant",
+            content:
+              "你好，欢迎来到东咫设计。\n我会先把你家的核心需求梳理清楚，再进入平面方案和效果图阶段。\n我们先从最关键的一步开始：这次是新房全案、旧房改造，还是局部翻新？",
+            images: []
+          }
+        ]
+      };
+
+      const els = {
+        messages: document.getElementById("messages"),
+        input: document.getElementById("input"),
+        sendBtn: document.getElementById("sendBtn"),
+        fileInput: document.getElementById("fileInput"),
+        imgPreview: document.getElementById("imgPreview"),
+        imgCount: document.getElementById("imgCount"),
+        profile: document.getElementById("profile"),
+        score: document.getElementById("score"),
+        bar: document.getElementById("bar"),
+        imageSearch: document.getElementById("imageSearch")
+      };
+
+      function esc(str = "") {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function renderMessages() {
+        els.messages.innerHTML = state.messages
+          .map((m) => {
+            const text = m.content ? esc(m.content) : '<span class="typing">正在输入...</span>';
+            const imgs = Array.isArray(m.images) && m.images.length
+              ? `<div class="msg-images">${m.images.map((src) => `<img src="${src}" alt="参考图" />`).join("")}</div>`
+              : "";
+            return `<div class="msg ${m.role}"><div>${text}</div>${imgs}</div>`;
+          })
+          .join("");
+        els.messages.scrollTop = els.messages.scrollHeight;
+      }
+
+      function renderImagePreview() {
+        els.imgCount.textContent = state.pendingImages.length
+          ? `已添加 ${state.pendingImages.length} 张参考图`
+          : "未添加参考图";
+
+        els.imgPreview.innerHTML = state.pendingImages
+          .map((img, idx) => `
+            <div class="thumb">
+              <img src="${img.dataUrl}" alt="${esc(img.name || "参考图")}" />
+              <button data-remove="${idx}" title="移除">×</button>
+            </div>
+          `)
+          .join("");
+      }
+
+      function renderProfile() {
+        const p = state.profile || {};
+        const score = Number(p.completeness || 0);
+        els.score.textContent = `完成度：${score}%`;
+        els.bar.style.width = `${Math.max(0, Math.min(100, score))}%`;
+
+        const listField = (label, arr) => `
+          <div class="kv">
+            <div class="k">${label}</div>
+            <div class="chips">${(arr || []).length ? (arr || []).map((x) => `<span class="chip">${esc(x)}</span>`).join("") : '<span class="muted">暂无</span>'}</div>
+          </div>`;
+
+        els.profile.innerHTML = `
+          <div class="kv"><div class="k">装修类型</div>${esc(p.projectType || "未填")}</div>
+          <div class="kv"><div class="k">城市</div>${esc(p.city || "未填")}</div>
+          <div class="kv"><div class="k">户型</div>${esc(p.houseType || "未填")}</div>
+          <div class="kv"><div class="k">面积</div>${esc(p.areaM2 || "未填")}</div>
+          <div class="kv"><div class="k">预算</div>${esc(p.budget || "未填")}</div>
+          <div class="kv"><div class="k">家庭结构</div>${esc(p.household || "未填")}</div>
+          <div class="kv"><div class="k">计划时间</div>${esc(p.timeline || "未填")}</div>
+          ${listField("风格偏好", p.stylePrefs)}
+          ${listField("强需求", p.mustHaves)}
+          ${listField("限制条件", p.constraints)}
+          ${listField("仍缺失字段", p.missingFields)}
+          <div class="kv"><div class="k">备注</div>${esc(p.notes || "暂无")}</div>
+        `;
+      }
+
+      function renderImageSearch() {
+        const info = state.imageSearch;
+        if (!info || !Array.isArray(info.queries) || !info.queries.length) {
+          els.imageSearch.className = "muted";
+          els.imageSearch.textContent = "上传参考图后会自动生成检索关键词与链接。";
+          return;
+        }
+
+        const queryChips = (info.queries || []).map((q) => `<span class="chip">${esc(q)}</span>`).join("");
+        const tagChips = (info.styleTags || []).map((q) => `<span class="chip">${esc(q)}</span>`).join("");
+        const materialChips = (info.materials || []).map((q) => `<span class="chip">${esc(q)}</span>`).join("");
+
+        const linksHtml = (info.links || [])
+          .map((item) => `
+            <div class="kv">
+              <div class="k">检索词：${esc(item.query)}</div>
+              <div class="search-links">
+                <a href="${item.google}" target="_blank" rel="noopener noreferrer">Google 图片</a>
+                <a href="${item.bing}" target="_blank" rel="noopener noreferrer">Bing 图片</a>
+                <a href="${item.xiaohongshu}" target="_blank" rel="noopener noreferrer">小红书</a>
+                <a href="${item.pinterest}" target="_blank" rel="noopener noreferrer">Pinterest</a>
+              </div>
+            </div>
+          `)
+          .join("");
+
+        els.imageSearch.className = "";
+        els.imageSearch.innerHTML = `
+          <div class="kv"><div class="k">推荐检索词</div><div class="chips">${queryChips || '<span class="muted">暂无</span>'}</div></div>
+          <div class="kv"><div class="k">风格标签</div><div class="chips">${tagChips || '<span class="muted">暂无</span>'}</div></div>
+          <div class="kv"><div class="k">材料关键词</div><div class="chips">${materialChips || '<span class="muted">暂无</span>'}</div></div>
+          ${linksHtml}
+        `;
+      }
+
+      function fileToDataURL(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function loadImage(dataUrl) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = dataUrl;
+        });
+      }
+
+      async function compressImage(file) {
+        const raw = await fileToDataURL(file);
+        const img = await loadImage(raw);
+
+        const maxSide = 1280;
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * scale));
+        const h = Math.max(1, Math.round(img.height * scale));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        return canvas.toDataURL("image/jpeg", 0.82);
+      }
+
+      async function handleFiles(fileList) {
+        const files = Array.from(fileList || []).filter((f) => f.type.startsWith("image/"));
+        if (!files.length) return;
+
+        const remain = Math.max(0, 4 - state.pendingImages.length);
+        const selected = files.slice(0, remain);
+
+        for (const file of selected) {
+          try {
+            const dataUrl = await compressImage(file);
+            state.pendingImages.push({ name: file.name, dataUrl });
+          } catch {
+            // ignore invalid image
+          }
+        }
+
+        renderImagePreview();
+      }
+
+      function clearPendingImages() {
+        state.pendingImages = [];
+        els.fileInput.value = "";
+        renderImagePreview();
+      }
+
+      async function consumeSSE(resp, assistantIndex) {
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          let sepIndex;
+
+          while ((sepIndex = buffer.indexOf("\n\n")) !== -1) {
+            const block = buffer.slice(0, sepIndex).trim();
+            buffer = buffer.slice(sepIndex + 2);
+            if (!block) continue;
+
+            let event = "message";
+            let dataText = "";
+
+            block.split("\n").forEach((line) => {
+              const l = line.trim();
+              if (l.startsWith("event:")) {
+                event = l.slice(6).trim();
+              } else if (l.startsWith("data:")) {
+                dataText += l.slice(5).trim();
+              }
+            });
+
+            if (!dataText) continue;
+
+            let data;
+            try {
+              data = JSON.parse(dataText);
+            } catch {
+              continue;
+            }
+
+            if (event === "delta") {
+              state.messages[assistantIndex].content += data.text || "";
+              renderMessages();
+            } else if (event === "done") {
+              if (!state.messages[assistantIndex].content && data.reply) {
+                state.messages[assistantIndex].content = data.reply;
+              }
+              state.profile = data.profile || state.profile;
+              state.imageSearch = data.imageSearch || null;
+              renderMessages();
+              renderProfile();
+              renderImageSearch();
+            } else if (event === "error") {
+              throw new Error(data.error || "流式响应失败");
+            }
+          }
+        }
+      }
+
+      async function send() {
+        const text = els.input.value.trim();
+        const imgs = state.pendingImages.map((x) => x.dataUrl);
+        if ((!text && imgs.length === 0) || state.loading) return;
+
+        state.loading = true;
+        els.sendBtn.disabled = true;
+
+        const userMsg = {
+          role: "user",
+          content: text || "请参考我发的参考图。",
+          images: imgs
+        };
+        state.messages.push(userMsg);
+
+        clearPendingImages();
+        els.input.value = "";
+
+        const assistantIndex = state.messages.push({ role: "assistant", content: "", images: [] }) - 1;
+        renderMessages();
+
+        try {
+          const resp = await fetch("/api/chat?stream=1", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              stream: true,
+              messages: state.messages,
+              profile: state.profile
+            })
+          });
+
+          const ctype = (resp.headers.get("content-type") || "").toLowerCase();
+          if (!resp.ok) {
+            let message = "请求失败";
+            try {
+              const err = await resp.json();
+              message = err.error || message;
+            } catch {}
+            throw new Error(message);
+          }
+
+          if (ctype.includes("text/event-stream") && resp.body) {
+            await consumeSSE(resp, assistantIndex);
+          } else {
+            const data = await resp.json();
+            state.messages[assistantIndex].content = data.reply || "我这边有点卡住了，你再说一次，我继续帮你梳理。";
+            state.profile = data.profile || state.profile;
+            state.imageSearch = data.imageSearch || null;
+            renderMessages();
+            renderProfile();
+            renderImageSearch();
+          }
+        } catch (e) {
+          state.messages[assistantIndex].content = `抱歉，刚刚网络有点抖动：${e.message}\n你再发一次，我马上继续。`;
+          renderMessages();
+        } finally {
+          state.loading = false;
+          els.sendBtn.disabled = false;
+        }
+      }
+
+      els.sendBtn.addEventListener("click", send);
+      els.input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          send();
+        }
+      });
+
+      els.fileInput.addEventListener("change", async (e) => {
+        await handleFiles(e.target.files);
+      });
+
+      els.imgPreview.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-remove]");
+        if (!btn) return;
+        const idx = Number(btn.getAttribute("data-remove"));
+        if (Number.isNaN(idx)) return;
+        state.pendingImages.splice(idx, 1);
+        renderImagePreview();
+      });
+
+      renderMessages();
+      renderProfile();
+      renderImagePreview();
+      renderImageSearch();
+    </script>
+  </body>
+</html>
